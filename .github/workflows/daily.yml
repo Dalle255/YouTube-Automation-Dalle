@@ -28,7 +28,7 @@ jobs:
         uses: yaananth/run-notebook@v2
         with:
           notebook: "Youtube Automation Trigger - Test 1.ipynb"
-          params: '{}'                 # ← valid JSON string (empty object)
+          params: '{}'                 # ← now a proper JSON string
 
       - name: Upload finished MP4
         uses: actions/upload-artifact@v4
