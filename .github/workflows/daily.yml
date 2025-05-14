@@ -1,10 +1,10 @@
 name: YouTube-Short-Daily
 
 on:
-  # 06:00 CET every day  → 04:00 UTC in cron
+  # 06:00 CET every day  → 04:00 UTC in cron syntax
   schedule:
     - cron: '0 4 * * *'
-  workflow_dispatch:          # adds a manual “Run workflow” button
+  workflow_dispatch:          # manual “Run workflow” button
 
 jobs:
   run-notebook:
@@ -18,25 +18,25 @@ jobs:
       GAMEPLAY_URL:        ${{ secrets.GAMEPLAY_URL }}
 
     steps:
-      # 1) check out the repo
+      # 1 – check out the repo
       - uses: actions/checkout@v4
 
-      # 2) set up Python
+      # 2 – set up Python
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 3) install notebook dependencies
+      # 3 – install notebook dependencies
       - run: pip install -r requirements.txt
 
-      # 4) execute the notebook head-less
+      # 4 – execute the notebook head-less
       - name: Execute notebook with Papermill
         uses: yaananth/run-notebook@v2
         with:
-          notebook: "Youtube Automation Trigger - Test 1.ipynb"   # ← your file
-          # no params field needed – the notebook reads GAMEPLAY_URL from env
+          notebook: "Youtube Automation Trigger - Test 1.ipynb"
+          params: '{}'                     # <<— minimal, valid JSON
 
-      # 5) keep the rendered MP4 as a build artifact (optional)
+      # 5 – save the rendered MP4 as a build artifact (optional)
       - name: Upload finished MP4
         uses: actions/upload-artifact@v4
         with:
