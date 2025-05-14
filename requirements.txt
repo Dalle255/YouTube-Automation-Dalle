@@ -4,3 +4,6 @@ papermill>=2.4
 openai>=1.14
 gdown>=5
 praw>=7.7.1
+moviepy==1.0.3
+imageio-ffmpeg
+beautifulsoup4
