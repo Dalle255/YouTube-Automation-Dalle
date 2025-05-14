@@ -1,0 +1,25 @@
+From 1234567890 Mon Sep 17 00:00:00 2001
+Subject: chore: update MoviePy imports for >=2.0 API
+
+--- a/Youtube Automation Trigger - Test 1.ipynb
++++ b/Youtube Automation Trigger - Test 1.ipynb
+@@
+-        "from moviepy import AudioFileClip\\n",
++        "from moviepy.editor import AudioFileClip\\n",
+@@
+-from moviepy import (
+-    VideoFileClip, CompositeVideoClip, concatenate_videoclips,
+-    ColorClip, ImageClip, AudioFileClip, CompositeAudioClip
+-)
+-from moviepy.video.fx.resize import resize as resize_fx
+-from moviepy.video.fx.crop import crop as crop_fx
+-from moviepy.audio.fx.audio_loop import audio_loop
++from moviepy.editor import (
++    VideoFileClip, CompositeVideoClip, concatenate_videoclips,
++    ColorClip, ImageClip, AudioFileClip, CompositeAudioClip,
++    vfx, afx
++)
++# ── keep existing helper names so the rest of the notebook stays unchanged ──
++resize_fx = vfx.resize
++crop_fx   = vfx.crop
++audio_loop = afx.audio_loop
