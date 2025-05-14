@@ -1,14 +1,16 @@
 name: YouTube-Short-Daily
 
 on:
+  # 06:00 CET → 04:00 UTC every day
   schedule:
-    - cron: '0 4 * * *'     # 06:00 CET daily
-  workflow_dispatch:
+    - cron: '0 4 * * *'
+  workflow_dispatch:       # manual “Run workflow” button
 
 jobs:
   run-notebook:
     runs-on: ubuntu-latest
 
+    # repository secrets you actually use inside the notebook
     env:
       CLIENT_SECRETS_JSON: ${{ secrets.CLIENT_SECRETS_JSON }}
       TOKEN_JSON:          ${{ secrets.TOKEN_JSON }}
@@ -16,22 +18,35 @@ jobs:
       GAMEPLAY_URL:        ${{ secrets.GAMEPLAY_URL }}
 
     steps:
-      - uses: actions/checkout@v4
+    # 1  Checkout the repo
+    - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+    # 2  Set up Python
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
-      - run: pip install -r requirements.txt
+    # 3  Install notebook dependencies
+    - run: pip install -r requirements.txt
 
-      - name: Execute notebook with Papermill
-        uses: yaananth/run-notebook@v2
-        with:
-          notebook: "Youtube Automation Trigger - Test 1.ipynb"
-          params: '{}'                 # ← now a proper JSON string
+    # 4  Create an (empty) params file expected by the action
+    - name: Prepare params file
+      run: echo '{}' > params.json
 
-      - name: Upload finished MP4
-        uses: actions/upload-artifact@v4
-        with:
-          name: short
-          path: shorts_final.mp4
+    # 5  Execute the notebook head-less
+    - name: Execute notebook with Papermill
+      uses: yaananth/run-notebook@v2
+      env:                # <- mandatory for this action
+        RUNNER:  ${{ toJson(runner) }}    # GitHub runner context
+        SECRETS: ${{ toJson(secrets) }}   # all repository secrets
+        GITHUB:  ${{ toJson(github) }}    # full workflow context
+      with:
+        notebook: "Youtube Automation Trigger - Test 1.ipynb"
+        params:   "params.json"           # path to the file we just made
+
+    # 6  Archive the rendered short (optional)
+    - name: Upload finished MP4
+      uses: actions/upload-artifact@v4
+      with:
+        name: short
+        path: shorts_final.mp4
