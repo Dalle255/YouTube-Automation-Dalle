@@ -28,7 +28,7 @@ jobs:
       - name: Execute notebook with Papermill
         uses: yaananth/run-notebook@v2
         with:
-          notebook: video_flow.ipynb
+          notebook: Youtube Automation Trigger - Test 1.ipynb
           params: '{"GAMEPLAY_URL": "${{ env.GAMEPLAY_URL }}"}'   # <— one-line JSON
 
       - name: Upload finished MP4
