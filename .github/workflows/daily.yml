@@ -2,14 +2,14 @@ name: YouTube-Short-Daily
 
 on:
   schedule:
-    - cron: '0 4 * * *'     # 06:00 CET daily
-  workflow_dispatch:         # manual Run button
+    - cron: '0 4 * * *'      # 06:00 CET daily
+  workflow_dispatch:
 
 jobs:
   run-notebook:
     runs-on: ubuntu-latest
 
-    env:                     # expose repo secrets
+    env:
       CLIENT_SECRETS_JSON: ${{ secrets.CLIENT_SECRETS_JSON }}
       TOKEN_JSON:          ${{ secrets.TOKEN_JSON }}
       OPENAI_API_KEY:      ${{ secrets.OPENAI_API_KEY }}
@@ -18,22 +18,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
+        with:
+          python-version: '3.11'
 
       - run: pip install -r requirements.txt
 
-      # ⬅ write a minimal params file that just contains {}
-      - name: Create empty params.json
+      # ---- NEW: create an empty params file ------------------------------
+      - name: Create params.json
         run: echo '{}' > params.json
+      # --------------------------------------------------------------------
 
-      # execute the notebook
       - name: Execute notebook with Papermill
         uses: yaananth/run-notebook@v2
         with:
           notebook: "Youtube Automation Trigger - Test 1.ipynb"
-          params:   "params.json"          # ⬅ give the file path, not inline JSON
+          params:   "params.json"        # 👈 give the *file path*
 
-      # save the rendered MP4
       - name: Upload finished MP4
         uses: actions/upload-artifact@v4
         with:
