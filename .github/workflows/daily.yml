@@ -2,7 +2,7 @@ name: YouTube-Short-Daily
 
 on:
   schedule:
-    - cron: '0 4 * * *'      # 06:00 CET daily
+    - cron: '0 4 * * *'     # 06:00 CET daily
   workflow_dispatch:
 
 jobs:
@@ -17,22 +17,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - run: pip install -r requirements.txt
 
-      # ---- NEW: create an empty params file ------------------------------
-      - name: Create params.json
-        run: echo '{}' > params.json
-      # --------------------------------------------------------------------
-
       - name: Execute notebook with Papermill
         uses: yaananth/run-notebook@v2
         with:
           notebook: "Youtube Automation Trigger - Test 1.ipynb"
-          params:   "params.json"        # 👈 give the *file path*
+          params: '{}'                 # ← valid JSON string (empty object)
 
       - name: Upload finished MP4
         uses: actions/upload-artifact@v4
