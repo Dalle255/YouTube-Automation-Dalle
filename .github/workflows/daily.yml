@@ -8,6 +8,7 @@ on:
 jobs:
   run-notebook:
     runs-on: ubuntu-latest
+    timeout-minutes: 45  # Prevent hanging
     env:
       CLIENT_SECRETS_JSON: ${{ secrets.CLIENT_SECRETS_JSON }}
       TOKEN_JSON: ${{ secrets.TOKEN_JSON }}
@@ -34,20 +35,31 @@ jobs:
         pip install --upgrade pip
         pip install lxml[html_clean]>=4.9.0
         pip install -r requirements.txt
-        pip install nbconvert>=7.0
+        pip install nbconvert>=7.0 memory_profiler
+        pip install --force-reinstall gdown==5  # Explicitly pin working version
+
+    - name: Verify Google Drive access
+      run: |
+        FILE_ID=$(echo "${{ secrets.GAMEPLAY_URL }}" | grep -oP 'id=\K[^&]+')
+        echo "Testing download for file ID: $FILE_ID"
+        gdown --version
+        gdown --id $FILE_ID -O test.mp4 || \
+        curl -L -o test.mp4 "https://drive.google.com/uc?export=download&id=$FILE_ID"
+        ls -lh test.mp4
+        file test.mp4
+        rm test.mp4  # Clean up test file
 
     - name: Prepare params file
       run: echo '{}' > params.json
 
-    - name: Execute notebook with Papermill
-      uses: yaananth/run-notebook@v2
+    - name: Execute notebook with enhanced error handling
       env:
-        RUNNER: ${{ toJson(runner) }}
-        SECRETS: ${{ toJson(secrets) }}
-        GITHUB: ${{ toJson(github) }}
-      with:
-        notebook: "Youtube Automation Trigger - Test 1.ipynb"
-        params: "params.json"
+        PYTHONOPTIMIZE: 2  # Reduce memory overhead
+      run: |
+        python -m memory_profiler \
+          jupyter nbconvert --execute --to notebook \
+          --inplace "Youtube Automation Trigger - Test 1.ipynb" \
+          --ExecutePreprocessor.timeout=1800  # 30 minute timeout
 
     - name: Upload finished MP4
       if: always()
@@ -55,3 +67,13 @@ jobs:
       with:
         name: short
         path: shorts_final.mp4
+
+    - name: Upload debug info
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: debug-info
+        path: |
+          *.log
+          nbconvert*.out
+          test.mp4  # In case download fails but partial file exists
