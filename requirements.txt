@@ -7,4 +7,7 @@ praw>=7.7.1
 moviepy>=2.1.2
 imageio-ffmpeg
 beautifulsoup4
+requests>=2.31.0
+Pillow>=10.0.0
+numpy>=1.24.0
 git+https://github.com/MTG/freesound-python.git
