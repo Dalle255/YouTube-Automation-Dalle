@@ -60,7 +60,7 @@ jobs:
     - name: Execute notebook
       run: |
         jupyter nbconvert --execute --to notebook \
-          --inplace "Youtube Automation Trigger - Test 1.ipynb" \
+          --inplace "Youtube Automation Trigger - Test 2.ipynb" \
           --ExecutePreprocessor.kernel_name=python3 \
           --ExecutePreprocessor.timeout=1800
 
