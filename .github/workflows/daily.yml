@@ -12,6 +12,10 @@ on:
     - cron: '0 2 * * *'   # 07:30 IST – India morning
     - cron: '0 14 * * *'  # 19:30 IST – India evening
     - cron: '0 20 * * *'  # 15:00 EST – USA afternoon
+    - cron: '0 5 * * *'  # 15:00 EST – USA afternoon
+    - cron: '0 8 * * *'  # 15:00 EST – USA afternoon
+    - cron: '0 22 * * *'  # 15:00 EST – USA afternoon
+    - cron: '0 18 * * *'  # 15:00 EST – USA afternoon
   workflow_dispatch:
 
 jobs:
