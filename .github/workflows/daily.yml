@@ -74,7 +74,7 @@ jobs:
         jupyter nbconvert --execute --to notebook \
           --inplace "Youtube Automation Trigger - Test 4.ipynb" \
           --ExecutePreprocessor.kernel_name=python3 \
-          --ExecutePreprocessor.timeout=1800
+          --ExecutePreprocessor.timeout=3600
 
     - name: Upload finished MP4
       if: always()
