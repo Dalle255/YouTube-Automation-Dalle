@@ -77,6 +77,7 @@ jobs:
       with:
         name: short
         path: shorts_final.mp4
+        retention-days: 2
 
     - name: Upload debug info
       if: failure()
@@ -86,3 +87,10 @@ jobs:
         path: |
           *.log
           nbconvert*.out
+        retention-days: 2
+
+    - name: Delete old artifacts
+      uses: c-hive/gha-delete-artifacts@v2
+      with:
+        age: '2 day'
+        skip-recent: 1
