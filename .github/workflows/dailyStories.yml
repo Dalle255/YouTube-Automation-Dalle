@@ -43,7 +43,7 @@ jobs:
 
     - name: Install aeneas
       run: |
-        pip install aeneas==1.7.3.0
+        pip install --no-build-isolation aeneas==1.7.3.0
 
     - name: Prepare Google API credentials
       run: |
