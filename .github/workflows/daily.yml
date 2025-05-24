@@ -89,10 +89,12 @@ jobs:
           nbconvert*.out
         retention-days: 2
 
-    - name: Delete old artifacts
-      uses: keanu-dev/gh-actions-delete-artifacts@v2
+  purge-artifacts:
+    runs-on: ubuntu-latest
+    needs: run-notebook
+    steps:
+    - name: Delete workflow artifacts older than 2 days
+      uses: kolpav/purge-artifacts-action@v1
       with:
-        age: '2 day'
-        skip-recent: 1
-
-
+        token: ${{ secrets.GITHUB_TOKEN }}
+        expire-in: 2days
