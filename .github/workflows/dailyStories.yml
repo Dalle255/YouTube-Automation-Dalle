@@ -1,16 +1,6 @@
 name: YouTube-Short-Daily-Stories
 
 on:
-  # schedule:
-  #   - cron: '0 7 * * *'
-  #   - cron: '0 8 * * *'
-  #   - cron: '0 9 * * *'
-  #   - cron: '0 17 * * *'
-  #   - cron: '0 23 * * *'
-  #   - cron: '0 2 * * *'
-  #   - cron: '0 3 * * *'
-  #   - cron: '0 4 * * *'
-  #   - cron: '0 5 * * *'
   workflow_dispatch:
 
 jobs:
@@ -40,6 +30,10 @@ jobs:
         pip install numpy
         pip install -r requirements2.txt
         pip install nbconvert>=7.0 ipykernel
+
+    - name: Install build tools for aeneas
+      run: |
+        pip install wheel "setuptools<60"
 
     - name: Install aeneas
       run: |
