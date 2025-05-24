@@ -90,7 +90,8 @@ jobs:
         retention-days: 2
 
     - name: Delete old artifacts
-      uses: c-hive/gha-delete-artifacts@v2
+      uses: c-hive/gha-delete-artifacts@v3.1.0
       with:
         age: '2 day'
         skip-recent: 1
+
