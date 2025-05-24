@@ -1,3 +1,4 @@
+# Core dependencies
 google-api-python-client>=2
 google-auth-oauthlib>=1
 openai>=1.14
@@ -8,3 +9,10 @@ Pillow>=10.0.0
 numpy>=1.24.0
 mutagen
 nbconvert>=7.0
+
+# Dependencies required by aeneas
+beautifulsoup4
+lxml
+
+# aeneas library for forced alignment
+aeneas==1.7.3.0
