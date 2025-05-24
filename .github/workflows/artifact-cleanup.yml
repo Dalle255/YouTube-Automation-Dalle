@@ -1,0 +1,14 @@
+name: Cleanup Artifacts
+
+on:
+  workflow_dispatch:   # This enables the manual trigger
+
+jobs:
+  purge-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge old artifacts
+        uses: kolpav/purge-artifacts-action@v1
+        with:
+          token: ${{ secrets.ACTIONS_PAT }}
+          expire-in: 2days
