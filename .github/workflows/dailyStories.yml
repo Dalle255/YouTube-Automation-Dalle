@@ -4,11 +4,10 @@ on:
   schedule:
     # Morning runs for Denmark (UTC+2)
     - cron: '0 8 * * *'   # 10:00 Danish time (UTC+2)
-    - cron: '0 9 * * *'   # 11:00 Danish time (UTC+2)
     # Europe Afternoon / Early Evening (good for Danish/European + India/China overlap
-    - cron: '0 17 * * *'  # 19:00 Danish time (UTC+2)
+    - cron: '0 13 * * *'  # 19:00 Danish time (UTC+2)
     # USA East Coast prime time (19:00–22:00 EST) / Danish late night/early morning
-    - cron: '0 2 * * *'   # 04:00 Danish time (UTC+2) / 22:00 EST
+    - cron: '0 1 * * *'   # 04:00 Danish time (UTC+2) / 22:00 EST
     # USA West Coast prime time (19:00–22:00 PST) / Danish very early morning
     - cron: '0 5 * * *'   # 07:00 Danish time (UTC+2) / 22:00 PST
   workflow_dispatch:
@@ -19,7 +18,7 @@ jobs:
     timeout-minutes: 60
     env:
       CLIENT_SECRETS_JSON: ${{ secrets.CLIENT_SECRETS_JSON }}
-      TOKEN_JSON: ${{ secrets.TOKEN_JSON }}
+      TOKEN_JSON: ${{ secrets.TOKEN2_JSON }}       # CHANGED HERE
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
     steps:
@@ -52,7 +51,7 @@ jobs:
     - name: Prepare Google API credentials
       run: |
         echo "${CLIENT_SECRETS_JSON}" > client_secret.json
-        echo "${TOKEN_JSON}" > token.pickle
+        echo "${TOKEN_JSON}" > token.json           # CHANGED HERE (still writes to token.json, but from new secret)
 
     - name: Prepare params file
       run: echo '{}' > params.json
