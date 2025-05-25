@@ -60,7 +60,7 @@ jobs:
     - name: Execute notebook
       run: |
         jupyter nbconvert --execute --to notebook \
-          --inplace "YouTube_Automation_v5_0_SHORT_STORIES_TEST.ipynb" \
+          --inplace "YouTube_Automation_v5_1 Stories.ipynb" \
           --ExecutePreprocessor.kernel_name=python3 \
           --ExecutePreprocessor.timeout=3600
 
