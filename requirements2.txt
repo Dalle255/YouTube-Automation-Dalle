@@ -13,3 +13,6 @@ nbconvert>=7.0
 # Dependencies required by aeneas
 beautifulsoup4
 lxml
+
+# Reddit API for story seeds
+praw
