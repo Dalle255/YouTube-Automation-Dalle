@@ -1,0 +1,83 @@
+name: YouTube-Short-Daily-Stories
+
+on:
+  schedule:
+    # USA East Coast prime time (19:00–22:00 EST) / Danish late night/early morning
+    - cron: '0 1 * * *'   # 04:00 Danish time (UTC+2) / 22:00 EST
+    # USA West Coast prime time (19:00–22:00 PST) / Danish very early morning
+    - cron: '0 5 * * *'   # 07:00 Danish time (UTC+2) / 22:00 PST
+    # Morning runs for Denmark (UTC+2)
+    - cron: '0 8 * * *'   # 10:00 Danish time (UTC+2)
+    # Europe Afternoon / Early Evening (good for Danish/European + India/China overlap
+    - cron: '0 13 * * *'  # 19:00 Danish time (UTC+2)
+
+  workflow_dispatch:
+
+jobs:
+  run-notebook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CLIENT_SECRETS_JSON: ${{ secrets.CLIENT_SECRETS_JSON }}
+      TOKEN_JSON: ${{ secrets.TOKEN2_JSON }}       # CHANGED HERE
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install system fonts and Aeneas dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y fonts-dejavu ffmpeg espeak libespeak-dev
+
+    - name: Install dependencies (without aeneas)
+      run: |
+        pip install --upgrade pip
+        pip install numpy
+        pip install -r requirements2.txt
+        pip install nbconvert>=7.0 ipykernel
+
+    - name: Install build tools for aeneas
+      run: |
+        pip install wheel "setuptools<60"
+
+    - name: Install aeneas
+      run: |
+        pip install --no-build-isolation aeneas==1.7.3.0
+
+    - name: Prepare Google API credentials
+      run: |
+        echo "${CLIENT_SECRETS_JSON}" > client_secret.json
+        echo "${TOKEN_JSON}" > token.json           # CHANGED HERE (still writes to token.json, but from new secret)
+
+    - name: Prepare params file
+      run: echo '{}' > params.json
+
+    - name: Execute notebook
+      run: |
+        jupyter nbconvert --execute --to notebook \
+          --inplace "YouTube_Automation_v6_0_10_sec_Motivation_Characters_test.ipynb" \
+          --ExecutePreprocessor.kernel_name=python3 \
+          --ExecutePreprocessor.timeout=3600
+
+    - name: Upload finished MP4
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: short
+        path: shorts_final.mp4
+        retention-days: 2
+
+    - name: Upload debug info
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: debug-info
+        path: |
+          *.log
+          nbconvert*.out
+        retention-days: 2
