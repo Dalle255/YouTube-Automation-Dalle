@@ -1,0 +1,94 @@
+name: Daily Song Maker & YouTube Upload
+
+on:
+  schedule:
+    # 11:25 Europe/Copenhagen ≈ 10:25 UTC (winter). Adjust if DST changes.
+    - cron: "25 10 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: song-maker-daily
+  cancel-in-progress: true
+
+env:
+  # Export secrets to env for the notebook
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  SUNO_API_KEY:  ${{ secrets.SUNO_API_KEY }}
+  CLIENT_SECRETS_JSON: ${{ secrets.CLIENT_SECRETS_JSON_B64 }}
+  TOKEN2_JSON: ${{ secrets.TOKEN2_JSON_B64 }}
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-1.53.0-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install system deps (ffmpeg)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python deps (pinned)
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade \
+            openai==1.53.0 requests moviepy==1.0.3 numpy \
+            librosa==0.10.2.post1 soundfile==0.12.1 pillow==10.4.0 \
+            tqdm==4.66.5 httpx==0.26.0 \
+            google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 \
+            jupyter papermill==2.5.0
+
+      - name: Run notebook headlessly with Papermill
+        env:
+          # Ensures our topic generator uses Copenhagen calendar for its daily seed
+          TZ: Europe/Copenhagen
+        run: |
+          papermill "Song_Maker_YT.ipynb" "Song_Maker_YT_out.ipynb" -k python3
+
+      - name: Collect outputs (final video & run folder)
+        # Grab the latest run directory and important files
+        run: |
+          mkdir -p artifacts
+          # Copy the most recent shorts_run_* folder if multiple exist
+          LAST_RUN=$(ls -dt /content/shorts_run_* 2>/dev/null | head -n1 || echo "")
+          if [ -n "$LAST_RUN" ]; then
+            echo "Found run folder: $LAST_RUN"
+            cp -r "$LAST_RUN" artifacts/
+            # Also copy convenience files if present
+            if [ -f "$LAST_RUN/shorts_final.mp4" ]; then cp "$LAST_RUN/shorts_final.mp4" artifacts/; fi
+            if [ -f "$LAST_RUN/metadata.json" ]; then cp "$LAST_RUN/metadata.json" artifacts/; fi
+            if [ -f "$LAST_RUN/topic.txt" ]; then cp "$LAST_RUN/topic.txt" artifacts/; fi
+          else
+            echo "No /content/shorts_run_* folder found; attempting to find in workspace..."
+            # If your notebook writes elsewhere, adjust here.
+            find . -maxdepth 3 -type f -name "shorts_final.mp4" -exec cp {} artifacts/ \; || true
+            find . -maxdepth 3 -type f -name "metadata.json" -exec cp {} artifacts/ \; || true
+          fi
+          ls -la artifacts || true
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: song-maker-output
+          path: artifacts
+          if-no-files-found: warn
